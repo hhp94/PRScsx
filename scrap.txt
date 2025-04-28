@@ -1,0 +1,1 @@
+uv run main.py --ref_dir=./working_data/1000G --bim_prefix=./working_data/gwa_550_g1.ADHD --sst_file=./working_data/ADHD.clean.tsv --n_gwas=225534 --pop=EUR --out_dir=./working_data --out_name=ADHD --chrom=10 --n_iter=500 --n_burnin=250 --thin=2

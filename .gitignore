@@ -104,5 +104,8 @@ venv.bak/
 .mypy_cache/
 
 # uv
-main.py
 pyproject.toml
+uv.lock
+
+# modding
+working_data
