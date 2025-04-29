@@ -1,24 +1,21 @@
-#!/usr/bin/env python
-
 """
 Random variate generator for the generalized inverse Gaussian distribution.
 Reference: L Devroye. Random variate generation for the generalized inverse Gaussian distribution.
            Statistics and Computing, 24(2):239-246, 2014.
-
 """
 
 import math
 from numpy import random
+from time import perf_counter
+import gigrnd_imp as gi
 
 def psi(x, alpha, lam):
     f = -alpha*(math.cosh(x)-1.0)-lam*(math.exp(x)-x-1.0)
     return f
 
-
 def dpsi(x, alpha, lam):
     f = -alpha*math.sinh(x)-lam*(math.exp(x)-1.0)
     return f
-
 
 def g(x, sd, td, f1, f2):
     if (x >= -sd) and (x <= td):
@@ -29,7 +26,6 @@ def g(x, sd, td, f1, f2):
         f = f2
 
     return f
-
 
 def gigrnd(p, a, b):
     # setup -- sample from the two-parameter version gig(lam,omega)
@@ -119,4 +115,36 @@ def gigrnd(p, a, b):
     rnd = rnd/math.sqrt(a/b)
     return rnd
 
+def test(fn, name):
+    start = perf_counter()
+    result = fn()
+    duration = perf_counter() - start
+    print('{} took {:.0f} microseconds\n\n'.format(name, duration * 1e6))
+    print(result[:50])
 
+if __name__ == "__main__":
+    # Python Implementation
+    random.seed(42)
+    
+    print(f"testing psi(0, 1, 1): {psi(0, 1, 1)}")
+    print(f"testing psi(1, 1, 1): {psi(1, 1, 1)}")
+    print(f"testing dpsi(0, 1, 1): {dpsi(0, 1, 1)}")
+    print(f"testing dpsi(1, 1, 1): {dpsi(1, 1, 1)}")
+    ## gigrnd
+    print(f"testing g(1.0, 2.0, 0.5, 0.3, 0.4): {g(1.0, 2.0, 0.5, 0.3, 0.4)}")
+    print(f"testing gigrnd(0.5, 2.0, 0.5): {gigrnd(0.5, 2.0, 0.5)}")
+    test(lambda: [gigrnd(0.5, 2.0, 0.5) for _ in range(5000)], '(Python implementation)')
+
+    random.seed(42)
+
+    # C++ Implementation
+    gi.set_seed(42)
+
+    print(f"testing gi.psi(0, 1, 1): {gi.psi(0, 1, 1)}")
+    print(f"testing gi.psi(1, 1, 1): {gi.psi(1, 1, 1)}")
+    print(f"testing gi.dpsi(0, 1, 1): {gi.dpsi(0, 1, 1)}")
+    print(f"testing gi.dpsi(1, 1, 1): {gi.dpsi(1, 1, 1)}")
+    print(f"testing gi.g(1.0, 2.0, 0.5, 0.3, 0.4): {gi.g(1.0, 2.0, 0.5, 0.3, 0.4)}")
+    ## gigrnd
+    print(f"testing gi.gigrnd(0.5, 2.0, 0.5): {gi.gigrnd(0.5, 2.0, 0.5)}")
+    test(lambda: [gi.gigrnd(0.5, 2.0, 0.5) for _ in range(5000)], '(C++ implementation)')
